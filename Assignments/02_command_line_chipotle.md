@@ -261,9 +261,3 @@ It's a bit unclear where the data comes from but either prices are variable
 over time or over location. The ~$2.50 price difference between versions
 of something (e.g. on Veggie Soft Tacos at $8.75 and one at $11.25 is a function
 of whether there is Guacamole or not; verified by grepping for this specifically).
-
-**Submitting Your Homework:**
-
-* Create a Markdown file that includes your answers **and** the code you used to arrive at those answers.
-* Add this Markdown file to a GitHub repo that you'll use for all of your coursework.
-* Submit a link to your repo using the homework submission form.
