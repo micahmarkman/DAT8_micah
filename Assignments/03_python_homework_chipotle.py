@@ -155,12 +155,15 @@ BONUS: Think of a question about this data that interests you, and then answer i
 Getting the full menu as I did for the command line first via a for loop
 then via a set comprehension.
 '''
-full_menu = set()
+full_menu_set = set()
 for row in data:
     cur_price = float(row[4][1:])/int(row[1])
     cur_menu_item = '{0}\t${1:.2f}'.format(row[2], cur_price)
-    full_menu.add(cur_menu_item)
+    full_menu_set.add(cur_menu_item)
 
-full_menu = {"{0}    ${1:.2f}".format(row[2],float(row[4][1:])/int(row[1])) for row in data}
+full_menu_set = {"{0}\t${1:.2f}".format(row[2],float(row[4][1:])/int(row[1])) for row in data}
 
+full_menu = [row.split(sep='\t') for row in full_menu_set]
+print("")
+print("Full Menu:")
 pp.pprint(full_menu)
