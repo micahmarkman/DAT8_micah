@@ -41,9 +41,7 @@
 | choice_description | Detailed description of the order including sides/options |
 | item_price | Total price for the order line item |
 
-<span style="display:none">
 1. This should be here but markdown I can't get numbered list to start at 2 and tables seem to not allow indention.
-</span>
 
 2. How many orders do there appear to be?
 
