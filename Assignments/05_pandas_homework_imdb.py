@@ -133,15 +133,31 @@ movies[movies.title.isin(movies[movies.duplicated('title')].title.values)]
 # calculate the average star rating for each genre, but only include genres with at least 10 movies
 # using the movies_by_genre dataframegroupby; filter to only have genres with at least 10 records
 # then take resulting dataframe and groupby genre again to apply star_rating.agg on it
-movies_by_genre.filter(lambda x: len(x) >= 10).groupby('genre').star_rating.agg('mean')
 
+import time
+ts1 = time.time()
+num_iterations = 10000
+i = 0
+
+while i < num_iterations:
+    movies_by_genre.filter(lambda x: len(x) >= 10).groupby('genre').star_rating.agg('mean')
+    i += 1
+    
+ts2 = time.time()
+i = 0
 # there must be a more efficent way to do this; perhaps using multiple functions at once
-movies_by_genre_star_ratings = movies_by_genre.star_rating.agg(['count', 'mean'])
-movies_by_genre_star_ratings[movies_by_genre_star_ratings['count'] >= 10]
+while i < num_iterations:
+    movies_by_genre_star_ratings = movies_by_genre.star_rating.agg(['count', 'mean'])
+    movies_by_genre_star_ratings[movies_by_genre_star_ratings['count'] >= 10]
+    i += 1
 # the above "feels" more efficeint to me because there is only one iteration through the list
 # but, in this case, many of the groups are filtered out so maybe its faster to only compute
 # the mean for the subset of groups; seems unlikely though; computing the mean on the small
 # groups is unlikely to "cost" much.
+
+ts3 = time.time()
+
+print('avg star rating/genre perf test; i={0}; lambda method took {1}, multi agg method took {2}'.format(i,ts2-ts1, ts3-ts2))
 
 '''
 BONUS
