@@ -65,7 +65,7 @@ def get_movie_info(imdb_id):
     return result
     
 movie_list = []
-with open('/Users/Micah/Documents/GeneralAssembly/Data Science/DAT8/data/imdb_ids.txt', mode='rU') as f:
+with open('imdb_ids.txt', mode='rU') as f:
     for row in f:
         movie_info = get_movie_info(row)
         if movie_info is not None:        
