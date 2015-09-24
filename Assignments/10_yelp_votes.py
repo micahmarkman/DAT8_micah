@@ -181,3 +181,12 @@ np.sqrt(metrics.mean_squared_error(y, y_pred_class))
 
 #10. **Bonus:** Figure out how to use linear regression for classification, and compare its classification accuracy with KNN's accuracy.
 #todo (isn't that what the next class is about?)
+feature_cols = ['cool', 'useful', 'funny', 'review_length']
+X = yelp[feature_cols]
+y = yelp.stars
+linreg = LinearRegression()
+linreg.fit(X, y)
+y_pred = linreg.predict(X)
+y_pred_class = np.round(y_pred)
+np.sqrt(metrics.mean_squared_error(y, y_pred_class))
+#1.20 is not too terrible but not as good as not rounding first
