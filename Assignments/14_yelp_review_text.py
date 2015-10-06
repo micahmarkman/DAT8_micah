@@ -106,6 +106,30 @@ with pd.option_context('display.max_rows', 999, 'display.max_columns', 3, 'displ
 
 #this is too much noise; I'm sure if I stared at this long enough a pattern might emerge
 #no time for staring at the spoon, let's generate the list of words that indicate a 5 or a 1
+yelp_1star = yelp[yelp.stars==1]
+yelp_5star = yelp[yelp.stars==5]
+vect.fit(yelp.text)
+all_tokens = vect.get_feature_names()
+yelp_1star_dtm = vect.transform(yelp_1star.text)
+yelp_5star_dtm = vect.transform(yelp_5star.text)
+
+# count how many times EACH token appears across ALL 1star/5star reviews
+onestar_counts = np.sum(yelp_1star_dtm.toarray(), axis=0)
+fivestar_counts = np.sum(yelp_5star_dtm.toarray(), axis=0)
+
+# create a DataFrame of tokens with their separate 1star/5star counts
+token_counts = pd.DataFrame({'token':all_tokens, '1star':onestar_counts, '5star':fivestar_counts})
+token_counts.set_index('token', inplace=True)
+
+#todo: come back and do this a better way (e.g. use a convention; although thinking about this more; maybe not a bad approx)
+token_counts['1star'] = token_counts['1star'] + 1
+token_counts['5star'] = token_counts['5star'] + 1
+
+# calculate ratio of 5star/1star for each token 
+token_counts['5star_ratio'] = token_counts['5star'] / token_counts['1star']
+token_counts.sort('5star_ratio')
+
+
 
 #now lets see which words show up in false positives and see if the overlap w/ words
 #that are high on 5'y list
@@ -114,11 +138,35 @@ FP_dtm = vect.fit_transform(X_test_fp)
 fp_tokens = vect.get_feature_names()
 fp_counts = FP_dtm.sum(axis=0).tolist()[0]
 fp_counts_df = pd.DataFrame({'token':fp_tokens, 'count':fp_counts}).sort('count')
+fp_counts_df.set_index('token', inplace=True)
+
+fp_counts_df['5star_ratio'] = token_counts['5star_ratio'][fp_counts_df.index]
+fp_counts_df.describe()
 with pd.option_context('display.max_rows', 999, 'display.max_columns', 3, 'display.max_colwidth', 1000):
     print(fp_counts_df)
 
+#this seems to be a list of the words causing fals positives
+#maybe great and fresh should be eliminated from dtm to see if that
+#improves specificity w/o hurting sensitivity
+fp_terms = fp_counts_df[fp_counts_df['5star_ratio']> 10]
 
-#vice versa
+#vice versa; looking for words that are triggering false negatives
+X_test_fn = X_test[y_test > y_pred_class]
+FN_dtm = vect.fit_transform(X_test_fn)
+fn_tokens = vect.get_feature_names()
+fn_counts = FN_dtm.sum(axis=0).tolist()[0]
+fn_counts_df = pd.DataFrame({'token':fn_tokens, 'count':fn_counts}).sort('count')
+fn_counts_df.set_index('token', inplace=True)
+
+fn_counts_df['5star_ratio'] = token_counts['5star_ratio'][fn_counts_df.index]
+fn_counts_df.describe()
+with pd.option_context('display.max_rows', 999, 'display.max_columns', 3, 'display.max_colwidth', 1000):
+    print(fn_counts_df)
+
+with pd.option_context('display.max_rows', 999, 'display.max_columns', 3, 'display.max_colwidth', 1000):
+    print(fn_counts_df)
+#i'm not seeing words that really scream to me; maybe removing 'not', 'didn', 'car'
+
 
 #10. Let's pretend that you want to balance sensitivity and specificity. You can achieve this by changing the threshold for predicting a 5-star review. What threshold approximately balances sensitivity and specificity?
 #looking for the leading edge of the plateau around tpr= 0.9 where any higher threshold just adds to fpr
