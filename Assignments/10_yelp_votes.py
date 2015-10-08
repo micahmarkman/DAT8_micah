@@ -24,7 +24,8 @@ yelp.stars.plot(kind='hist', bins=5)
 yelp.stars.plot(kind='box')
 
 #    * **Bonus:** Ignore the `yelp.csv` file, and construct this DataFrame yourself from `yelp.json`. This involves reading the data into Python, decoding the JSON, converting it to a DataFrame, and adding individual columns for each of the vote types.
-# TODO
+
+
 
 #2. Explore the relationship between each of the vote types (cool/useful/funny) and the number of stars.
 feature_cols = ['cool', 'useful', 'funny']
@@ -180,7 +181,6 @@ np.sqrt(metrics.mean_squared_error(y, y_pred_class))
 
 
 #10. **Bonus:** Figure out how to use linear regression for classification, and compare its classification accuracy with KNN's accuracy.
-#todo (isn't that what the next class is about?)
 feature_cols = ['cool', 'useful', 'funny', 'review_length']
 X = yelp[feature_cols]
 y = yelp.stars
@@ -189,4 +189,20 @@ linreg.fit(X, y)
 y_pred = linreg.predict(X)
 y_pred_class = np.round(y_pred)
 np.sqrt(metrics.mean_squared_error(y, y_pred_class))
-#1.20 is not too terrible but not as good as not rounding first
+#1.20 is not too terrible but not as good as not rounding
+
+X = yelp[feature_cols]
+y_pred = np.zeros_like(y, dtype=float)
+for star_num in range(1,6):
+    y = yelp.stars == star_num
+    linreg = LinearRegression()
+    linreg.fit(X, y)
+    new_column_name = 'prob_of_{0}'.format(star_num)
+    yelp[new_column_name] = linreg.predict(X)
+    
+    #compute expected value using probabilities
+    y_pred = y_pred + yelp[new_column_name]*star_num
+
+np.sqrt(metrics.mean_squared_error(yelp.stars, y_pred))
+#1.18; not quite as good as the standard linear regression; although
+# as Alex says perhaps RMS is not correct accuracy measurement

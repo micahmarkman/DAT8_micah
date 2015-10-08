@@ -35,7 +35,7 @@ y = yelp1or5stars.stars
 
 # split into training and testing sets
 from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=123)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=113)
 X_train.shape
 X_test.shape
 #4. Use CountVectorizer to create document-term matrices from X_train and X_test.
@@ -180,6 +180,12 @@ tpr_df[0].value_counts().head(20)
 #looking for fprs where fpr < 0.123 (next highest on fpr chain)
 print(thresholds[fpr < 0.123][-1])
 
+#the above approximation sucks; lets try distance from top left
+roc_df = pd.DataFrame({'tpr':tpr, 'fpr':fpr, 'threshold':thresholds})
+roc_df['sensitivity']
+roc_df['distance_from_top_left'] = (1-roc_df.tpr)*(1-roc_df.tpr)+roc_df.fpr*roc_df.fpr
+roc_df['distance_from_top_left'] = roc_df['distance_from_top_left'].apply(math.sqrt)
+roc_df.sort('distance_from_top_left').threshold.head(1)
 
 #11. Let's see how well Naive Bayes performs when all reviews are included, rather than just 1-star and 5-star reviews:
 #    - Define X and y using the original DataFrame from step 1. (y should contain 5 different classes.)
